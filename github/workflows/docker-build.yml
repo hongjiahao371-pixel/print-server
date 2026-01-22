@@ -1,0 +1,33 @@
+name: 构建并推送 Docker 镜像
+
+on:
+  push:
+    branches: [ "main" ]  # 当代码推送到 main 分支时触发
+  pull_request:
+    branches: [ "main" ]  # 当向 main 分支提 PR 时也触发（仅测试构建）
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 登录到 Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: 构建并推送 Docker 镜像
+      uses: docker/build-push-action@v5
+      with:
+        context: .  # Dockerfile 所在的路径，默认为项目根目录
+        push: true  # 仅在 push 事件时推送镜像，PR时只构建不推送
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/print-server:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/print-server:${{ github.sha }}  # 用 Git 提交哈希作为标签
+        # 如果你还想同时推送到 GitHub 容器镜像仓库 (GHCR)，可以添加以下 tags：
+        # tags: |
+        #   ${{ secrets.DOCKERHUB_USERNAME }}/print-server:latest
+        #   ghcr.io/${{ github.repository_owner }}/print-server:latest
