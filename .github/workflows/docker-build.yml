@@ -23,5 +23,5 @@ jobs:
         context: .
         push: true
         tags: |
-          jiahao hong/print-server:latest
-          jiahao hong/print-server:${{ github.sha }}
+          jvsheng/print-server:latest
+          jvsheng/print-server:${{ github.sha }}
